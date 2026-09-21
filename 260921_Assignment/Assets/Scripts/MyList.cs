@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class MyList<T>
 {
     private T[] _items;
@@ -59,19 +61,48 @@ public class MyList<T>
 
     public void Add(T value)
     {
-        if (!_items[_items.Length - 1].Equals(default(T)))
+        if (Capacity.Equals(default(T)) || !_items[0].Equals(default(T)))
         {
-            
+            GrowIfFull();
         }
+        
+        _items[Count] = value;
+        _count++;
+        
+        Debug.Log($"Test : {value}");
     }
 
     public void Insert(int index, T value)
     {
+        if (Capacity.Equals(default(T)) || !_items[Count - 1].Equals(default(T)))
+        {
+            GrowIfFull();
+        }
         
+        for(int i = Count; i > index; i--)
+        {
+            _items[Count - i] = _items[Count - 1 - i];
+        }
+        
+        _items[index] = value;
+        _count++;
     }
 
     private void GrowIfFull()
     {
-        
+        if (Count < Capacity)
+        {
+        }
+        else
+        {
+            if (Capacity.Equals(default(T)))
+            {
+                _items = new T[4];
+            }
+            else//  if (!_items[Count].Equals(default(T)))
+            {
+                _items = new T[Capacity * 2];
+            }
+        }
     }
 }
