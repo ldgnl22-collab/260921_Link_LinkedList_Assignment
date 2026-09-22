@@ -61,12 +61,9 @@ public class MyList<T>
 
     public void Add(T value)
     {
-        if (Capacity.Equals(default(T)) || !_items[0].Equals(default(T)))
-        {
-            GrowIfFull();
-        }
+        GrowIfFull();
         
-        _items[Count] = value;
+        _items[_count] = value;
         _count++;
         
         Debug.Log($"Test : {value}");
@@ -74,14 +71,18 @@ public class MyList<T>
 
     public void Insert(int index, T value)
     {
-        if (Capacity.Equals(default(T)) || !_items[Count - 1].Equals(default(T)))
+        if (Capacity.Equals(default(T)))
+        {
+            GrowIfFull();
+        }
+        else if (!Capacity.Equals(default(T)) && !_items[_count - 1].Equals(default(T)))
         {
             GrowIfFull();
         }
         
-        for(int i = Count; i > index; i--)
+        for(int i = _count; i > index; i--)
         {
-            _items[Count - i] = _items[Count - 1 - i];
+            _items[_count - i] = _items[_count - 1 - i];
         }
         
         _items[index] = value;
@@ -90,16 +91,16 @@ public class MyList<T>
 
     private void GrowIfFull()
     {
-        if (Count < Capacity)
+        if (_count < Capacity)
         {
         }
         else
         {
-            if (Capacity.Equals(default(T)))
+            if (!Capacity.Equals(default(T)))
             {
                 _items = new T[4];
             }
-            else//  if (!_items[Count].Equals(default(T)))
+            else
             {
                 _items = new T[Capacity * 2];
             }

@@ -15,6 +15,16 @@ public class MyListLogger : MonoBehaviour
         
         monsters.Add("슬라임");
         
+        Debug.Log(monsters.Count);
+        Debug.Log(monsters.Capacity);
         
+        monsters.Add("슬라임");
+        monsters.Add("슬라임");
+        monsters.Add("고블린");
+        monsters.Add("고블린");
+        monsters.Add("고블린");
+        
+        Debug.Log(monsters.Count);
+        Debug.Log(monsters.Capacity);
     }
 }
