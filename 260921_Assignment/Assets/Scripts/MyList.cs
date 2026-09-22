@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class MyList<T>
 {
     private T[] _items;
@@ -17,16 +15,19 @@ public class MyList<T>
 
     public MyList()
     {
+        // 칸이 하나도 없는 배열을 만들어 _items에 담습니다. 첫 Add에서 칸이 생깁니다.
         _items = new T[] { };
     }
 
     public MyList(int capacity)
     {
+        // 넘겨받은 칸 수만큼의 배열을 만들어 _items에 담습니다.
         _items = new T[capacity];
     }
 
     public T Get(int index)
     {
+        // index 칸의 값을 돌려줍니다.
         if (_items[index].Equals(default(T)))
         {
             return default(T);
@@ -39,6 +40,7 @@ public class MyList<T>
 
     public void Set(int index, T value)
     {
+        // index 칸에 value를 넣습니다.
         _items[index] = value;
     }
 
@@ -52,58 +54,150 @@ public class MyList<T>
             {
                 text += ", ";
             }
-            
+
             text += _items[i];
         }
-        
+
         return text;
     }
 
     public void Add(T value)
     {
+        // 칸이 다 찼으면 먼저 칸을 늘립니다.
         GrowIfFull();
         
+        // 개수가 가리키는 칸에 value를 넣습니다.
         _items[_count] = value;
-        _count++;
         
-        Debug.Log($"Test : {value}");
+        // 개수를 하나 늘립니다.
+        _count++;
     }
 
     public void Insert(int index, T value)
     {
-        if (Capacity.Equals(default(T)))
-        {
-            GrowIfFull();
-        }
-        else if (!Capacity.Equals(default(T)) && !_items[_count - 1].Equals(default(T)))
-        {
-            GrowIfFull();
-        }
+        // 칸이 다 찼으면 먼저 칸을 늘립니다.
+        GrowIfFull();
         
-        for(int i = _count; i > index; i--)
+        // 맨 끝 요소부터 index 자리의 요소까지, 뒤에서부터 돌며 한 칸씩 뒤로 옮깁니다.
+        for (int i = index; i > _count; i++)
         {
             _items[_count - i] = _items[_count - 1 - i];
         }
         
+        // index 칸에 value를 넣습니다.
         _items[index] = value;
+        
+        // 개수를 하나 늘립니다.
         _count++;
     }
 
     private void GrowIfFull()
     {
-        if (_count < Capacity)
+        // 개수가 칸 수보다 작으면 아무것도 하지 않고 돌아갑니다.
+        if (_count < Capacity) return;
+
+        // 새 칸 수를 정합니다. 지금 칸 수가 0이면 4, 아니면 지금 칸 수의 두 배입니다.
+        if (Capacity == 0)
         {
+            // 새 칸 수만큼의 배열을 새로 만듭니다.
+            T[] item = new T[4];
+            
+            // 담긴 요소를 앞에서부터 새 배열의 같은 번호 칸에 옮겨 담습니다.
+            for (int i = 0; i < _count; i++)
+            {
+                item[i] = _items[i];
+            }
+
+            // _items가 새 배열을 가리키게 합니다.
+            _items = item;
         }
         else
         {
-            if (!Capacity.Equals(default(T)))
+            T[] item = new T[Capacity * 2];
+            for (int i = 0; i < _count; i++)
             {
-                _items = new T[4];
+                item[i] = _items[i];
             }
-            else
+
+            _items = item;
+        }
+    }
+
+    public int IndexOf(T value)
+    {
+        int index = -1;
+        // 0번 칸부터 개수 직전 칸까지 앞에서부터 차례로 돕니다.
+        for (int i = 0; i < _count - 1; i++)
+        {
+            // 그 칸의 값이 value와 같은 값이면 그 번호를 돌려줍니다.
+            if (_items[i].Equals(value))
             {
-                _items = new T[Capacity * 2];
+                index = i + 1;
             }
         }
+        
+        if (index >= 0)
+        {
+            return index;
+        }
+        else
+        {
+            // 끝까지 돌아도 같은 값이 없으면 -1을 돌려줍니다.
+            return -1;
+        }
+    }
+
+    public bool Contains(T value)
+    {
+        // value가 몇 번 자리에 있는지 찾습니다.
+        if (0 < IndexOf(value))
+        {
+            // 찾은 번호가 0보다 작지 않으면 들어 있는 것입니다.
+            return true;
+        }
+        return false;
+    }
+
+    public void RemoveAt(int index)
+    {
+        for (int i = index; i < _count; i++)
+        {
+            // index 다음 요소부터 맨 끝 요소까지, 앞에서부터 돌며 한 칸씩 앞으로 옮깁니다.
+            _items[i] = _items[i + 1];
+        }
+        // 개수를 하나 줄입니다.
+        _count--;
+        // 비어 버린 맨 뒷자리 칸을 기본값으로 바꿉니다.
+        _items[_count + 1] = default(T);
+    }
+
+    public bool Remove(T value)
+    {
+        // value가 몇 번 자리에 있는지 찾습니다.
+        int index = IndexOf(value);
+        
+        // 찾지 못했으면 false를 돌려줍니다.
+        if (index < 0)
+        {
+            return false;
+        }
+        else
+        {
+            // 찾았으면 그 자리를 지우고 true를 돌려줍니다.
+            RemoveAt(index);
+            return true;
+        }
+    }
+
+    public void Clear()
+    {
+        // 0번 칸부터 개수 직전 칸까지 차례로 돌며 기본값으로 바꿉니다.
+        for (int i = 0; i < _count - 1; i++)
+        {
+            _items[i] = default(T);
+        }
+        // 개수를 0으로 만듭니다.
+        _count = 0;
+        // 칸 수는 건드리지 않습니다.
     }
 }
